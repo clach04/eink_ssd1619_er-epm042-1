@@ -49,3 +49,18 @@ Sanity checks:
     spidev                 20480  0
     spi_bcm2835            20480  0
 
+## Building and running
+
+Assuming build dependency installed, issue `make` in sample directory. Both samples create an `epd` binary.
+
+The sample has very little error checking and will crash if:
+
+  * not ran in the current directory (i.e. calling with absolute path leads to crashes when attempting to load images/bitmaps)
+  * when not ran as root for bcm demo (wiringpi can run as regular user)
+
+I.e.
+
+    cd ER-EPM042-1_Raspberry_Pi/ER-EPM042A1-1R/bcm2835 ; make ; sudo ./epd
+    cd ../../..
+    cd ER-EPM042-1_Raspberry_Pi/ER-EPM042A1-1R/wiringpi ; make ; ./epd
+
