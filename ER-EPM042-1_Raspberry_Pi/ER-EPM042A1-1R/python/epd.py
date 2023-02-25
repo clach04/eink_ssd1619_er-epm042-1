@@ -23,7 +23,7 @@ So far only implements:
 
 Need root access, if this is a venv, need to call python venv wrapper
 
-    sudo `which pythoni` epd.py
+    sudo `which python` epd.py
 
 Note on Raspberry Pi Zero takes about 30 secs to init, clear, and sleep.
 """
@@ -34,6 +34,14 @@ import time
 
 import spidev  # https://github.com/doceme/py-spidev
 import RPi.GPIO as gpio  # https://pypi.org/project/RPi.GPIO/  FIXME replace! Check out https://github.com/c0t088/libregpio
+
+try:
+    from PIL import Image
+except ImportError:
+    try:
+        import Image    # http://www.pythonware.com/products/pil/
+    except ImportError:
+        Image = None
 
 
 RST_PIN = 17
@@ -69,10 +77,10 @@ def delay_ms(delaytime):
 class Epd:
     def __init__(self, bus=0, device=0):
         # bus, device = 0, 0  # /dev/spidev<bus>.<device>
-        self.connect(self, bus=bus, device=device)
+        self.connect(bus=bus, device=device)
         self.epd_init()
 
-    def connect(self, bus=0, device=0)
+    def connect(self, bus=0, device=0):
         # bus, device = 0, 0  # /dev/spidev<bus>.<device>
         self.spi = spidev.SpiDev()
         self.spi.open(bus, device)
@@ -118,6 +126,7 @@ class Epd:
         self.epd_send_command(DISPLAY_UPDATE_CONTROL_2)
         self.epd_send_data(0xC7)
         self.epd_send_command(MASTER_ACTIVATION)
+        print('DEBUG self.epd_wait_until_idle')
         self.epd_wait_until_idle()
         
     def epd_set_windows(self, x_start, y_start, x_end, y_end):
@@ -135,7 +144,7 @@ class Epd:
         self.epd_send_command(SET_RAM_X_ADDRESS_COUNTER)
         self.epd_send_data((x_start >> 3) & 0xFF)
 
-        self.epd_send_command(self, SET_RAM_Y_ADDRESS_COUNTER)
+        self.epd_send_command(SET_RAM_Y_ADDRESS_COUNTER)
         self.epd_send_data(y_start & 0xFF)
         self.epd_send_data((y_start >> 8) & 0xFF)
 
@@ -167,22 +176,39 @@ class Epd:
         height = EPD_HEIGHT;
         self.epd_set_windows(0, 0, EPD_WIDTH, EPD_HEIGHT)
         # for loop black
+        print('DEBUG write black')
+        if not isinstance(black_image_bytes[0], int):
+            def process_pixel(x):
+                return ord(x)
+        else:
+            def process_pixel(x):
+                return x  # NOOP
         addr = 0
         for j in range(height):
             self.epd_set_cursor(0, j)
             self.epd_send_command(WRITE_RAM)
             for i in range(width):
                 addr = i + j * width
-                self.epd_send_data(black_image_bytes[addr])
+                #print('%r' % addr)
+                #print('\t%r' % black_image_bytes[addr])
+                self.epd_send_data(process_pixel(black_image_bytes[addr]))
 
         # for loop red
+        print('DEBUG write red')
+        if not isinstance(red_image_bytes[0], int):
+            def process_pixel(x):
+                return ord(x)
+        else:
+            def process_pixel(x):
+                return x  # NOOP
         addr = 0
         for j in range(height):
             self.epd_set_cursor(0, j)
             self.epd_send_command(WRITE_RAM_RED)
             for i in range(width):
                 addr = i + j * width
-                self.epd_send_data(red_image_bytes[addr])
+                self.epd_send_data(process_pixel(red_image_bytes[addr]))
+        print('DEBUG done write red')
         self.epd_turn_on_display()
 
     def epd_sleep(self):
@@ -255,24 +281,26 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
+    print('Python %s on %s' % (sys.version, sys.platform))
     #import pdb ; pdb.set_trace()
 
-    image_path = os.path.dirname(__file__)
-    image_path = os.path.join(image_path, '..', 'wiringpi', 'pic')
+    if Image:
+        image_path = os.path.dirname(__file__)
+        image_path = os.path.join(image_path, '..', 'wiringpi', 'pic')
 
 
-    black_image_path = os.path.join(image_path, '042-1rb1.bmp')
-    red_image_path = os.path.join(image_path, '042-1rr1.bmp')
+        black_image_path = os.path.join(image_path, '042-1rb1.bmp')
+        red_image_path = os.path.join(image_path, '042-1rr1.bmp')
 
-    black_image = Image.open(black_image_path)
-    black_image = black_image.convert('1')  # ensure we have a black and white (TODO gray scale support in hardware?) ## TODO dithering options
-    black_image = black_image.convert('L')  # now get one byte per pixel
-    assert black_image.size == (400, 300)
+        black_image = Image.open(black_image_path)
+        black_image = black_image.convert('1')  # ensure we have a black and white (TODO gray scale support in hardware?) ## TODO dithering options
+        black_image = black_image.convert('L')  # now get one byte per pixel
+        assert black_image.size == (400, 300)
 
-    red_image = Image.open(red_image_path)
-    red_image = red_image.convert('1')  # ensure we have a black and white (TODO gray scale support in hardware?) ## TODO dithering options
-    red_image = red_image.convert('L')  # now get one byte per pixel
-    assert red_image.size == (400, 300)
+        red_image = Image.open(red_image_path)
+        red_image = red_image.convert('1')  # ensure we have a black and white (TODO gray scale support in hardware?) ## TODO dithering options
+        red_image = red_image.convert('L')  # now get one byte per pixel
+        assert red_image.size == (400, 300)
 
 
     epd = Epd()
@@ -280,8 +308,9 @@ def main(argv=None):
     epd.epd_clear()
     epd.epd_sleep()
 
-    epd.epd_display(black_image_bytes, red_image_bytes)
-    delay_ms(30 * 1000)
+    if Image:
+        epd.epd_display(black_image.tobytes(), red_image.tobytes())
+        delay_ms(30 * 1000)
 
     epd.epd_close()
 
