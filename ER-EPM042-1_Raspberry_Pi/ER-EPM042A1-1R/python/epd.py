@@ -284,6 +284,7 @@ def main(argv=None):
     print('Python %s on %s' % (sys.version, sys.platform))
     #import pdb ; pdb.set_trace()
 
+    Image = None  # DEBUG disable image support, demo will be to clear and sleep
     if Image:
         image_path = os.path.dirname(__file__)
         image_path = os.path.join(image_path, '..', 'wiringpi', 'pic')
@@ -306,11 +307,13 @@ def main(argv=None):
     epd = Epd()
 
     epd.epd_clear()
-    epd.epd_sleep()
 
     if Image:
-        epd.epd_display(black_image.tobytes(), red_image.tobytes())
+        epd.epd_display(black_image.tobytes(), red_image.tobytes())  # FIXME the order of the pixels is not correct...
+        print('image now displaying, sleeping for 30 secs')
         delay_ms(30 * 1000)
+
+    epd.epd_sleep()
 
     epd.epd_close()
 
