@@ -257,10 +257,31 @@ def main(argv=None):
 
     #import pdb ; pdb.set_trace()
 
+    image_path = os.path.dirname(__file__)
+    image_path = os.path.join(image_path, '..', 'wiringpi', 'pic')
+
+
+    black_image_path = os.path.join(image_path, '042-1rb1.bmp')
+    red_image_path = os.path.join(image_path, '042-1rr1.bmp')
+
+    black_image = Image.open(black_image_path)
+    black_image = black_image.convert('1')  # ensure we have a black and white (TODO gray scale support in hardware?) ## TODO dithering options
+    black_image = black_image.convert('L')  # now get one byte per pixel
+    assert black_image.size == (400, 300)
+
+    red_image = Image.open(red_image_path)
+    red_image = red_image.convert('1')  # ensure we have a black and white (TODO gray scale support in hardware?) ## TODO dithering options
+    red_image = red_image.convert('L')  # now get one byte per pixel
+    assert red_image.size == (400, 300)
+
+
     epd = Epd()
 
     epd.epd_clear()
     epd.epd_sleep()
+
+    epd.epd_display(black_image_bytes, red_image_bytes)
+    delay_ms(30 * 1000)
 
     epd.epd_close()
 
