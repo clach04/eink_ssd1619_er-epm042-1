@@ -33,7 +33,7 @@ import sys
 import time
 
 import spidev  # https://github.com/doceme/py-spidev
-import RPi.GPIO as gpio  # https://pypi.org/project/RPi.GPIO/  FIXME replace!
+import RPi.GPIO as gpio  # https://pypi.org/project/RPi.GPIO/  FIXME replace! Check out https://github.com/c0t088/libregpio
 
 
 RST_PIN = 17
