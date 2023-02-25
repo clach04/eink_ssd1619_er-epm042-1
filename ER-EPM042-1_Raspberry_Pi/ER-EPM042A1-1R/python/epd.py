@@ -198,32 +198,41 @@ def epd_init():
     epd_wait_until_idle()
 
 
-#import pdb ; pdb.set_trace()
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
 
-spi = spidev.SpiDev()
-bus, device = 0, 0  # /dev/spidev<bus>.<device>
-spi.open(bus, device)
+    #import pdb ; pdb.set_trace()
 
-
-
-# init GPIO
-
-gpio.setmode(gpio.BCM)
-gpio.setwarnings(False)
-gpio.setup(RST_PIN, gpio.OUT)
-gpio.setup(DC_PIN, gpio.OUT)
-gpio.setup(CS_PIN, gpio.OUT)
-gpio.setup(BUSY_PIN, gpio.IN)
+    spi = spidev.SpiDev()
+    bus, device = 0, 0  # /dev/spidev<bus>.<device>
+    spi.open(bus, device)
 
 
-spi.max_speed_hz = 32000000  # is this 32Mhz? units are not documented in wiringpim struct implies this is hz
-spi.mode = 0b00
+
+    # init GPIO
+
+    gpio.setmode(gpio.BCM)
+    gpio.setwarnings(False)
+    gpio.setup(RST_PIN, gpio.OUT)
+    gpio.setup(DC_PIN, gpio.OUT)
+    gpio.setup(CS_PIN, gpio.OUT)
+    gpio.setup(BUSY_PIN, gpio.IN)
 
 
-epd_init()
-epd_clear()
-epd_sleep()
+    spi.max_speed_hz = 32000000  # is this 32Mhz? units are not documented in wiringpim struct implies this is hz
+    spi.mode = 0b00
 
-# need to reset GPIO?
-spi.close()
 
+    epd_init()
+    epd_clear()
+    epd_sleep()
+
+    # need to reset GPIO?
+    spi.close()
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
