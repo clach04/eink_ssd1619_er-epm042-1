@@ -67,7 +67,12 @@ def delay_ms(delaytime):
 
 
 class Epd:
-    def __init__(self, bus=0, device=0)
+    def __init__(self, bus=0, device=0):
+        # bus, device = 0, 0  # /dev/spidev<bus>.<device>
+        self.connect(self, bus=bus, device=device)
+        self.epd_init()
+
+    def connect(self, bus=0, device=0)
         # bus, device = 0, 0  # /dev/spidev<bus>.<device>
         self.spi = spidev.SpiDev()
         self.spi.open(bus, device)
@@ -214,6 +219,7 @@ class Epd:
         self.epd_send_command(MASTER_ACTIVATION)  # Master Activation
         self.epd_wait_until_idle()
 
+    # TODO desctructor
     def epd_close(self):
         # need to reset GPIO?
         self.spi.close()
@@ -228,7 +234,6 @@ def main(argv=None):
 
     epd = Epd()
 
-    epd.epd_init()
     epd.epd_clear()
     epd.epd_sleep()
 
