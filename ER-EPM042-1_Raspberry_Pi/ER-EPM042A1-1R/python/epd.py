@@ -197,21 +197,12 @@ def epd_init():
     epd_send_command(MASTER_ACTIVATION)  # Master Activation
     epd_wait_until_idle()
 
-
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv
-
-    #import pdb ; pdb.set_trace()
-
+def epd_connect(bus=0, device=0)
+    # bus, device = 0, 0  # /dev/spidev<bus>.<device>
     spi = spidev.SpiDev()
-    bus, device = 0, 0  # /dev/spidev<bus>.<device>
     spi.open(bus, device)
 
-
-
     # init GPIO
-
     gpio.setmode(gpio.BCM)
     gpio.setwarnings(False)
     gpio.setup(RST_PIN, gpio.OUT)
@@ -219,10 +210,17 @@ def main(argv=None):
     gpio.setup(CS_PIN, gpio.OUT)
     gpio.setup(BUSY_PIN, gpio.IN)
 
-
     spi.max_speed_hz = 32000000  # is this 32Mhz? units are not documented in wiringpim struct implies this is hz
     spi.mode = 0b00
 
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+
+    #import pdb ; pdb.set_trace()
+
+    epd_connect()
 
     epd_init()
     epd_clear()
