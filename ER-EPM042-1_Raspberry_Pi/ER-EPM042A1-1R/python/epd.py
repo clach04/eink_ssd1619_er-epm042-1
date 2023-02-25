@@ -160,6 +160,31 @@ class Epd:
                 self.epd_send_data(0XFF)
         self.epd_turn_on_display()
 
+    def epd_display(self, black_image_bytes, red_image_bytes):
+        # one byte per pixel (not one bit), unclear on grayscale support
+        width = (EPD_WIDTH / 8 ) if (EPD_WIDTH % 8 == 0) else (EPD_WIDTH / 8 + 1)
+        width = int(width)
+        height = EPD_HEIGHT;
+        self.epd_set_windows(0, 0, EPD_WIDTH, EPD_HEIGHT)
+        # for loop black
+        addr = 0
+        for j in range(height):
+            self.epd_set_cursor(0, j)
+            self.epd_send_command(WRITE_RAM)
+            for i in range(width):
+                addr = i + j * width
+                self.epd_send_data(black_image_bytes[addr])
+
+        # for loop red
+        addr = 0
+        for j in range(height):
+            self.epd_set_cursor(0, j)
+            self.epd_send_command(WRITE_RAM_RED)
+            for i in range(width):
+                addr = i + j * width
+                self.epd_send_data(red_image_bytes[addr])
+        self.epd_turn_on_display()
+
     def epd_sleep(self):
         self.epd_send_command(DEEP_SLEEP_MODE)
         self.epd_send_data(0x01)
