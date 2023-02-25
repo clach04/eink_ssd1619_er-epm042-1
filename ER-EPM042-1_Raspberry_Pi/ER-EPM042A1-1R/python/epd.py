@@ -63,26 +63,6 @@ DISPLAY_UPDATE_CONTROL_1 = 0x21
 
 
 
-spi = spidev.SpiDev()
-bus, device = 0, 0  # /dev/spidev<bus>.<device>
-spi.open(bus, device)
-
-
-
-# init GPIO
-
-gpio.setmode(gpio.BCM)
-gpio.setwarnings(False)
-gpio.setup(RST_PIN, gpio.OUT)
-gpio.setup(DC_PIN, gpio.OUT)
-gpio.setup(CS_PIN, gpio.OUT)
-gpio.setup(BUSY_PIN, gpio.IN)
-
-
-spi.max_speed_hz = 32000000  # is this 32Mhz? units are not documented in wiringpim struct implies this is hz
-spi.mode = 0b00
-
-
 def digital_write(pin, value):
     # needs GPIO - want something portable
     gpio.output(pin, value)
@@ -219,6 +199,27 @@ def epd_init():
 
 
 #import pdb ; pdb.set_trace()
+
+spi = spidev.SpiDev()
+bus, device = 0, 0  # /dev/spidev<bus>.<device>
+spi.open(bus, device)
+
+
+
+# init GPIO
+
+gpio.setmode(gpio.BCM)
+gpio.setwarnings(False)
+gpio.setup(RST_PIN, gpio.OUT)
+gpio.setup(DC_PIN, gpio.OUT)
+gpio.setup(CS_PIN, gpio.OUT)
+gpio.setup(BUSY_PIN, gpio.IN)
+
+
+spi.max_speed_hz = 32000000  # is this 32Mhz? units are not documented in wiringpim struct implies this is hz
+spi.mode = 0b00
+
+
 epd_init()
 epd_clear()
 epd_sleep()
