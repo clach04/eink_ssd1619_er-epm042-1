@@ -115,7 +115,7 @@ class Epd:
         self.spi_writebyte(command)
         self.digital_write(CS_PIN, 1)
 
-    def epd_send_data(self, data):
+    def send_data(self, data):
         self.digital_write(DC_PIN, 1)
         self.digital_write(CS_PIN, 0)
         self.spi_writebyte(data)
@@ -127,29 +127,29 @@ class Epd:
 
     def epd_turn_on_display(self):
         self.send_command(DISPLAY_UPDATE_CONTROL_2)
-        self.epd_send_data(0xC7)
+        self.send_data(0xC7)
         self.send_command(MASTER_ACTIVATION)
         print('DEBUG self.epd_wait_until_idle')
         self.epd_wait_until_idle()
         
     def epd_set_windows(self, x_start, y_start, x_end, y_end):
         self.send_command(SET_RAM_X_ADDRESS_START_END_POSITION)
-        self.epd_send_data((x_start >> 3) & 0xFF)
-        self.epd_send_data((x_end >> 3) & 0xFF)
+        self.send_data((x_start >> 3) & 0xFF)
+        self.send_data((x_end >> 3) & 0xFF)
 
         self.send_command(SET_RAM_Y_ADDRESS_START_END_POSITION)
-        self.epd_send_data(y_start & 0xFF)
-        self.epd_send_data((y_start >> 8) & 0xFF)
-        self.epd_send_data(y_end & 0xFF)
-        self.epd_send_data((y_end >> 8) & 0xFF)
+        self.send_data(y_start & 0xFF)
+        self.send_data((y_start >> 8) & 0xFF)
+        self.send_data(y_end & 0xFF)
+        self.send_data((y_end >> 8) & 0xFF)
 
     def epd_set_cursor(self, x_start, y_start):
         self.send_command(SET_RAM_X_ADDRESS_COUNTER)
-        self.epd_send_data((x_start >> 3) & 0xFF)
+        self.send_data((x_start >> 3) & 0xFF)
 
         self.send_command(SET_RAM_Y_ADDRESS_COUNTER)
-        self.epd_send_data(y_start & 0xFF)
-        self.epd_send_data((y_start >> 8) & 0xFF)
+        self.send_data(y_start & 0xFF)
+        self.send_data((y_start >> 8) & 0xFF)
 
     def epd_clear(self):
         #width = (EPD_WIDTH % 8 == 0)? (EPD_WIDTH / 8 ): (EPD_WIDTH / 8 + 1);
@@ -162,14 +162,14 @@ class Epd:
             self.epd_set_cursor(0, j)
             self.send_command(WRITE_RAM)
             for i in range(width):
-                self.epd_send_data(0XFF)
+                self.send_data(0XFF)
 
         # for loop red
         for j in range(height):
             self.epd_set_cursor(0, j)
             self.send_command(WRITE_RAM_RED)
             for i in range(width):
-                self.epd_send_data(0XFF)
+                self.send_data(0XFF)
         self.epd_turn_on_display()
 
     def epd_display(self, black_image_bytes, red_image_bytes):
@@ -197,7 +197,7 @@ class Epd:
                 #addr = i + (height - j - 1) * width  # flip
                 #print('%r' % addr)
                 #print('\t%r' % black_image_bytes[addr])
-                self.epd_send_data(process_pixel(black_image_bytes[addr]))
+                self.send_data(process_pixel(black_image_bytes[addr]))
 
         # for loop red
         print('DEBUG write red')
@@ -214,13 +214,13 @@ class Epd:
             for i in range(width):
                 addr = i + (j * width)
                 #addr = i + (height - j - 1) * width  # flip
-                self.epd_send_data(process_pixel(red_image_bytes[addr]))
+                self.send_data(process_pixel(red_image_bytes[addr]))
         print('DEBUG done write red')
         self.epd_turn_on_display()
 
     def epd_sleep(self):
         self.send_command(DEEP_SLEEP_MODE)
-        self.epd_send_data(0x01)
+        self.send_data(0x01)
 
     def epd_reset(self):
         self.digital_write(RST_PIN, 1)
@@ -234,46 +234,46 @@ class Epd:
         self.epd_reset()
 
         self.send_command(0x74)
-        self.epd_send_data(0x54)
+        self.send_data(0x54)
         self.send_command(0x7E)
-        self.epd_send_data(0x3B)
+        self.send_data(0x3B)
         self.send_command(0x2B)   #  Reduce glitch under ACVCOM  
-        self.epd_send_data(0x04)           
-        self.epd_send_data(0x63)
+        self.send_data(0x04)           
+        self.send_data(0x63)
             
         self.send_command(0x0C)   #  Soft start setting
-        self.epd_send_data(0x8E)           
-        self.epd_send_data(0x8C)
-        self.epd_send_data(0x85)
-        self.epd_send_data(0x3F)    
+        self.send_data(0x8E)           
+        self.send_data(0x8C)
+        self.send_data(0x85)
+        self.send_data(0x3F)    
 
 
         self.send_command(DRIVER_OUTPUT_CONTROL)   #  Driver Output control  Set MUX as 300
-        self.epd_send_data(0x2B)           
-        self.epd_send_data(0x01)
-        self.epd_send_data(0x00)  
+        self.send_data(0x2B)           
+        self.send_data(0x01)
+        self.send_data(0x00)  
         self.send_command(DATA_ENTRY_MODE_SETTING)   #  Data Entry mode setting
-        self.epd_send_data(0x03)  # 8.3 Data Entry Mode Setting (11h), top row, left to right, then 2nd row, ....
+        self.send_data(0x03)  # 8.3 Data Entry Mode Setting (11h), top row, left to right, then 2nd row, ....
         self.send_command(SET_RAM_X_ADDRESS_START_END_POSITION)  # Set RAM X - address Start / End position
-        self.epd_send_data(0x00)  #  RAM x address start at 0
-        self.epd_send_data(0x31)  # RAM x address end at 31h(49+1)*8->400
+        self.send_data(0x00)  #  RAM x address start at 0
+        self.send_data(0x31)  # RAM x address end at 31h(49+1)*8->400
         self.send_command(SET_RAM_Y_ADDRESS_START_END_POSITION)  # Set Ram Y- address Start / End position
-        self.epd_send_data(0x2B)  #  RAM y address start at  12Bh  
-        self.epd_send_data(0x01)
-        self.epd_send_data(0x00)  #  RAM y address end at 00h
-        self.epd_send_data(0x00)      
+        self.send_data(0x2B)  #  RAM y address start at  12Bh  
+        self.send_data(0x01)
+        self.send_data(0x00)  #  RAM y address end at 00h
+        self.send_data(0x00)      
             
         self.send_command(BORDER_WAVEFORM_CONTROL)  #  Border Waveform Control
-        self.epd_send_data(0x01)  #  HIZ
+        self.send_data(0x01)  #  HIZ
 
         self.send_command(DISPLAY_UPDATE_CONTROL_1)
-        self.epd_send_data(0x80) # Inverse RED RAM content
+        self.send_data(0x80) # Inverse RED RAM content
 
                 
         self.send_command(0x18) # Temperature Sensor Control
-        self.epd_send_data(0x80)   # Internal temperature sensor
+        self.send_data(0x80)   # Internal temperature sensor
         self.send_command(DISPLAY_UPDATE_CONTROL_2) # Display UpdateControl 2
-        self.epd_send_data(0xB1)  # Load Temperature and waveform setting.
+        self.send_data(0xB1)  # Load Temperature and waveform setting.
         self.send_command(MASTER_ACTIVATION)  # Master Activation
         self.epd_wait_until_idle()
 
