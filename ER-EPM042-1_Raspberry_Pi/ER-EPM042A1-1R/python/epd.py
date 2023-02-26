@@ -151,7 +151,7 @@ class Epd:
         self.send_data(y_start & 0xFF)
         self.send_data((y_start >> 8) & 0xFF)
 
-    def epd_clear(self):
+    def clear(self):
         #width = (EPD_WIDTH % 8 == 0)? (EPD_WIDTH / 8 ): (EPD_WIDTH / 8 + 1);
         width = (EPD_WIDTH / 8 ) if (EPD_WIDTH % 8 == 0) else (EPD_WIDTH / 8 + 1)
         width = int(width)
@@ -333,7 +333,7 @@ def main(argv=None):
     epd = Epd()
 
     try:
-        epd.epd_clear()
+        epd.clear()
 
         if Image:
             epd.display(black_image.tobytes(), red_image.tobytes())
