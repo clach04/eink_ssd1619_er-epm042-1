@@ -188,7 +188,9 @@ class Epd:
             self.epd_set_cursor(0, j)
             self.epd_send_command(WRITE_RAM)
             for i in range(width):
-                addr = i + j * width
+                #addr = (i * width) + j
+                addr = i + (j * width)
+                #addr = i + j * width
                 #addr = i + (height - j - 1) * width  # flip
                 #print('%r' % addr)
                 #print('\t%r' % black_image_bytes[addr])
@@ -207,7 +209,7 @@ class Epd:
             self.epd_set_cursor(0, j)
             self.epd_send_command(WRITE_RAM_RED)
             for i in range(width):
-                addr = i + j * width
+                addr = i + (j * width)
                 #addr = i + (height - j - 1) * width  # flip
                 self.epd_send_data(process_pixel(red_image_bytes[addr]))
         print('DEBUG done write red')
@@ -286,7 +288,7 @@ def main(argv=None):
     print('Python %s on %s' % (sys.version, sys.platform))
     #import pdb ; pdb.set_trace()
 
-    #Image = None  # DEBUG disable image support, demo will be to clear and sleep
+    Image = None  # DEBUG disable image support, demo will be to clear and sleep
     if Image:
         image_path = os.path.dirname(__file__)
         image_path = os.path.join(image_path, '..', 'wiringpi', 'pic')
