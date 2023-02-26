@@ -65,7 +65,7 @@ SET_RAM_X_ADDRESS_COUNTER = 0x4E
 SET_RAM_Y_ADDRESS_COUNTER = 0x4F
 
 DRIVER_OUTPUT_CONTROL = 0x01
-DATA_ENTRY_MODE_SETTING = 0x11
+DATA_ENTRY_MODE_SETTING = 0x11  # Page 38, Section: 8.3 Data Entry Mode Setting (11h)
 BORDER_WAVEFORM_CONTROL = 0x3C
 DISPLAY_UPDATE_CONTROL_1 = 0x21
 
@@ -250,7 +250,7 @@ class Epd:
         self.epd_send_data(0x01)
         self.epd_send_data(0x00)  
         self.epd_send_command(DATA_ENTRY_MODE_SETTING)   #  Data Entry mode setting
-        self.epd_send_data(0x03)         
+        self.epd_send_data(0x03)  # 8.3 Data Entry Mode Setting (11h), top row, left to right, then 2nd row, ....
         self.epd_send_command(SET_RAM_X_ADDRESS_START_END_POSITION)  # Set RAM X - address Start / End position
         self.epd_send_data(0x00)  #  RAM x address start at 0
         self.epd_send_data(0x31)  # RAM x address end at 31h(49+1)*8->400
