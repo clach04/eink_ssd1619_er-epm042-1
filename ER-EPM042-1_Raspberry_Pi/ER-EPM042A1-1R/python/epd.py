@@ -33,7 +33,12 @@ import sys
 import time
 
 import spidev  # https://github.com/doceme/py-spidev
-import RPi.GPIO as gpio  # https://pypi.org/project/RPi.GPIO/  FIXME replace! Check out https://github.com/c0t088/libregpio
+try:
+    import gpiod
+    rpi_gpio = None
+except ImportError:
+    gpiod = None
+    import RPi.GPIO as rpi_gpio  # https://pypi.org/project/RPi.GPIO/  FIXME replace! Check out https://github.com/c0t088/libregpio
 
 try:
     from PIL import Image
@@ -89,22 +94,26 @@ class Epd:
         self.spi.open(bus, device)
 
         # init GPIO
-        gpio.setmode(gpio.BCM)
-        gpio.setwarnings(False)
-        gpio.setup(RST_PIN, gpio.OUT)
-        gpio.setup(DC_PIN, gpio.OUT)
-        gpio.setup(CS_PIN, gpio.OUT)
-        gpio.setup(BUSY_PIN, gpio.IN)
+        if gpiod:
+            raise NotImplementedError('gpiod is still todo, stuck with RPi.GPIO for now')
+        elif rpi_gpio:
+            rpi_gpio.setmode(rpi_gpio.BCM)
+            rpi_gpio.setwarnings(False)
+            rpi_gpio.setup(RST_PIN, rpi_gpio.OUT)
+            rpi_gpio.setup(DC_PIN, rpi_gpio.OUT)
+            rpi_gpio.setup(CS_PIN, rpi_gpio.OUT)
+            rpi_gpio.setup(BUSY_PIN, rpi_gpio.IN)
 
         self.spi.max_speed_hz = 32000000  # is this 32Mhz? units are not documented in wiringpim struct implies this is hz
         self.spi.mode = 0b00
 
-    def digital_write(self, pin, value):
-        # needs GPIO - want something portable
-        gpio.output(pin, value)
+    if rpi_gpio:
+        def digital_write(self, pin, value):
+            # needs GPIO - want something portable
+            rpi_gpio.output(pin, value)
 
-    def digital_read(self, pin):
-        return gpio.input(pin)
+        def digital_read(self, pin):
+            return rpi_gpio.input(pin)
 
     def spi_writebyte(self, data):
         self.spi.writebytes([data])
