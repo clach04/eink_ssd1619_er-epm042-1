@@ -75,7 +75,10 @@ def delay_ms(delaytime):
 
 
 class Epd:
+    is_open = False
+
     def __init__(self, bus=0, device=0):
+        self.is_open = True
         # bus, device = 0, 0  # /dev/spidev<bus>.<device>
         self.connect(bus=bus, device=device)
         self.epd_init()
@@ -274,10 +277,14 @@ class Epd:
         self.epd_send_command(MASTER_ACTIVATION)  # Master Activation
         self.epd_wait_until_idle()
 
-    # TODO desctructor
     def epd_close(self):
-        # need to reset GPIO?
-        self.spi.close()
+        if self.is_open:
+            # need to reset GPIO?
+            self.spi.close()
+            self.is_open = False
+
+    def __del__(self):
+        self.epd_close()
 
 
 
@@ -288,7 +295,8 @@ def main(argv=None):
     print('Python %s on %s' % (sys.version, sys.platform))
     #import pdb ; pdb.set_trace()
 
-    #Image = None  # DEBUG disable image support, demo will be to clear and sleep
+    Image = None  # DEBUG disable image support, demo will be to clear and sleep
+    # TODO bit plane slice color into B and R
     if Image:
         image_path = os.path.dirname(__file__)
         image_path = os.path.join(image_path, '..', 'wiringpi', 'pic')
@@ -324,16 +332,16 @@ def main(argv=None):
 
     epd = Epd()
 
-    epd.epd_clear()
+    try:
+        epd.epd_clear()
 
-    if Image:
-        epd.epd_display(black_image.tobytes(), red_image.tobytes())
-        print('image now displaying, sleeping for 30 secs')
-        delay_ms(30 * 1000)
-
-    epd.epd_sleep()
-
-    epd.epd_close()
+        if Image:
+            epd.epd_display(black_image.tobytes(), red_image.tobytes())
+            print('image now displaying, sleeping for 30 secs')
+            delay_ms(30 * 1000)
+    finally:
+        epd.epd_sleep()
+        epd.epd_close()
 
 
     return 0
