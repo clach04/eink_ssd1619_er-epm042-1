@@ -5,10 +5,11 @@ import os
 import sys
 
 try:
-    from PIL import Image
+    from PIL import Image, ImageOps
 except ImportError:
     try:
         import Image    # http://www.pythonware.com/products/pil/
+        import ImageOps
     except ImportError:
         Image = None
 
@@ -33,36 +34,7 @@ def simpleimage_resize(im):
         #im = im.transpose(Image.ROTATE_90)
         im = im.transpose(Image.ROTATE_270)  # TODO be more efficient to rotate after reducing size
     log.debug('im.size %r', im.size)
-    if im.size > MAX_IMAGE_SIZE:
-        log.debug('resizing')
-        """resize - maintain aspect ratio
-        NOTE PIL thumbnail method does not increase
-        if new size is larger than original
-        2 passes gives good speed and quality
-        """
-        im.thumbnail((MAX_IMAGE_SIZE[0] * 2, MAX_IMAGE_SIZE[1] * 2))
-        im.thumbnail(MAX_IMAGE_SIZE, Image.ANTIALIAS)
-
-    # image is not too big, but it may be too small
-    # _may_ need to add white (black) bar(s)
-    if im.size < MAX_IMAGE_SIZE:
-        log.debug('too small - add bar')
-        im = im.convert('RGB')  # convert to RGB
-        #bg_col = (0, 0, 0)
-        #bg_col = (0x00, 0x00, 0x00)
-        bg_col = (0xff, 0xff, 0xff)
-        background = Image.new('RGB', MAX_IMAGE_SIZE, bg_col)
-        x, y = im.size
-        #background.paste(im, (0, 0, x, y))  # does not center/centre
-        x1 = int(.5 * background.size[0]) - int(.5 * im.size[0])
-        y1 = int(.5 * background.size[1]) - int(.5 * im.size[1]) -1
-        x2 = int(.5 * background.size[0]) + int(.5 * im.size[0])
-        y2 = int(.5 * background.size[1]) + int(.5 * im.size[1])
-        log.debug('im.size %r', background.size)
-        log.debug('offsets %r', ((x1, y1, x2, y2),))
-        background.paste(im, (x1, y1, x2, y2))  # center/centre
-        im = background
-    
+    im = ImageOps.pad(im, MAX_IMAGE_SIZE, color=(0xff, 0xff, 0xff), centering=(0.5, 0.5))
     return im
 
 
