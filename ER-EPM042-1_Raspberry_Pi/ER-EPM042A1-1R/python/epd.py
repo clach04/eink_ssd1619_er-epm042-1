@@ -132,7 +132,7 @@ class Epd:
         print('DEBUG self.epd_wait_until_idle')
         self.epd_wait_until_idle()
         
-    def epd_set_windows(self, x_start, y_start, x_end, y_end):
+    def set_windows(self, x_start, y_start, x_end, y_end):
         self.send_command(SET_RAM_X_ADDRESS_START_END_POSITION)
         self.send_data((x_start >> 3) & 0xFF)
         self.send_data((x_end >> 3) & 0xFF)
@@ -156,7 +156,7 @@ class Epd:
         width = (EPD_WIDTH / 8 ) if (EPD_WIDTH % 8 == 0) else (EPD_WIDTH / 8 + 1)
         width = int(width)
         height = EPD_HEIGHT;
-        self.epd_set_windows(0, 0, EPD_WIDTH, EPD_HEIGHT)
+        self.set_windows(0, 0, EPD_WIDTH, EPD_HEIGHT)
         # for loop black
         for j in range(height):
             self.epd_set_cursor(0, j)
@@ -177,7 +177,7 @@ class Epd:
         width = (EPD_WIDTH / 8 ) if (EPD_WIDTH % 8 == 0) else (EPD_WIDTH / 8 + 1)
         width = int(width)
         height = EPD_HEIGHT;
-        self.epd_set_windows(0, 0, EPD_WIDTH, EPD_HEIGHT)
+        self.set_windows(0, 0, EPD_WIDTH, EPD_HEIGHT)
         # for loop black
         print('DEBUG write black')
         if not isinstance(black_image_bytes[0], int):
