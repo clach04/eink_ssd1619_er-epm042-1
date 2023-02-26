@@ -34,7 +34,7 @@ def simpleimage_resize(im):
         #im = im.transpose(Image.ROTATE_90)
         im = im.transpose(Image.ROTATE_270)  # TODO be more efficient to rotate after reducing size
     log.debug('im.size %r', im.size)
-    im = ImageOps.pad(im, MAX_IMAGE_SIZE, color=(0xff, 0xff, 0xff), centering=(0.5, 0.5))
+    im = ImageOps.pad(im, MAX_IMAGE_SIZE, method=Image.BICUBIC, color=(0xff, 0xff, 0xff), centering=(0.5, 0.5))
     return im
 
 
