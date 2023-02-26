@@ -28,13 +28,16 @@ Need root access, if this is a venv, need to call python venv wrapper
 Note on Raspberry Pi Zero takes about 30 secs to init, clear, and sleep.
 """
 
+import logging
 import os
 import sys
 import time
 
 import spidev  # https://github.com/doceme/py-spidev
 try:
-    import gpiod
+    import gpiod  # sudo apt install python3-libgpiod
+    # which has a VERY different API to pure python https://github.com/hhk7734/python3-gpiod
+    # BOTH have issues opening up SPI pin when already opened for SPI
     rpi_gpio = None
 except ImportError:
     gpiod = None
@@ -47,6 +50,13 @@ except ImportError:
         import Image    # http://www.pythonware.com/products/pil/
     except ImportError:
         Image = None
+
+
+log_format = '%(asctime)s %(filename)s:%(lineno)d %(levelname)s %(message)s'
+logging.basicConfig(format=log_format)
+log = logging.getLogger('asusdisplay')
+log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
+log.setLevel(logging.DEBUG)
 
 
 RST_PIN = 17
@@ -90,12 +100,38 @@ class Epd:
 
     def connect(self, bus=0, device=0):
         # bus, device = 0, 0  # /dev/spidev<bus>.<device>
-        self.spi = spidev.SpiDev()
-        self.spi.open(bus, device)
 
         # init GPIO
         if gpiod:
-            raise NotImplementedError('gpiod is still todo, stuck with RPi.GPIO for now')
+            log.info('gpiod  version %r', gpiod.version_string())  # 1.2 tested
+            chip = gpiod.Chip('gpiochip0')
+            self._RST_PIN = chip.get_line(RST_PIN)
+            #self._RST_PIN.consumer = __file__  # AttributeError: 'gpiod.Line' object attribute 'consumer' is read-only
+            #self._RST_PIN.request_type = gpiod.line_request.DIRECTION_OUTPUT
+            #self._RST_PIN.request_type = gpiod.LINE_REQ_DIR_OUT
+            self._RST_PIN.request(consumer=__file__, type=gpiod.LINE_REQ_DIR_OUT)  # bad keyword conflict with builtin
+            # TODO? , default_vals=[0]
+
+            self._DC_PIN = chip.get_line(DC_PIN)
+            self._DC_PIN.request(consumer=__file__, type=gpiod.LINE_REQ_DIR_OUT)
+
+            # this is SPI;  8:      unnamed   "spi0 CS0"
+            class FakePin:
+                def set_value(self, x):
+                    pass
+            self._CS_PIN = FakePin()
+            #self._CS_PIN = chip.get_line(CS_PIN)
+            #self._CS_PIN.request(consumer=__file__, type=gpiod.LINE_REQ_DIR_OUT)
+
+            self._BUSY_PIN = chip.get_line(BUSY_PIN)
+            self._BUSY_PIN.request(consumer=__file__, type=gpiod.LINE_REQ_DIR_IN)
+            self.pin_dict = {
+                RST_PIN: self._RST_PIN,
+                DC_PIN: self._DC_PIN,
+                CS_PIN: self._CS_PIN,
+                BUSY_PIN: self._BUSY_PIN,
+            }
+            #raise NotImplementedError('gpiod is still todo, stuck with RPi.GPIO for now')
         elif rpi_gpio:
             rpi_gpio.setmode(rpi_gpio.BCM)
             rpi_gpio.setwarnings(False)
@@ -104,12 +140,20 @@ class Epd:
             rpi_gpio.setup(CS_PIN, rpi_gpio.OUT)
             rpi_gpio.setup(BUSY_PIN, rpi_gpio.IN)
 
+        self.spi = spidev.SpiDev()
+        self.spi.open(bus, device)
+
         self.spi.max_speed_hz = 32000000  # is this 32Mhz? units are not documented in wiringpim struct implies this is hz
         self.spi.mode = 0b00
 
-    if rpi_gpio:
+    if gpiod:
         def digital_write(self, pin, value):
-            # needs GPIO - want something portable
+            self.pin_dict[pin].set_value(value)
+
+        def digital_read(self, pin):
+            return self.pin_dict[pin].get_value()
+    elif rpi_gpio:
+        def digital_write(self, pin, value):
             rpi_gpio.output(pin, value)
 
         def digital_read(self, pin):
@@ -288,10 +332,11 @@ class Epd:
 
     def close(self):
         if self.is_open:
+            # TODO chip and self._... close()?
             if rpi_gpio:
                 rpi_gpio.cleanup()
-        self.spi.close()
-        self.is_open = False
+            self.spi.close()
+            self.is_open = False
 
     def __del__(self):
         self.close()
@@ -352,7 +397,7 @@ def main(argv=None):
         if Image:
             epd.display(black_image.tobytes(), red_image.tobytes())
             print('image now displaying, sleeping for 30 secs')
-            delay_ms(30 * 1000)
+            #delay_ms(30 * 1000)
     finally:
         epd.sleep()
         epd.close()
