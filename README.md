@@ -65,6 +65,7 @@ I.e.
     cd ../../..
     cd ER-EPM042-1_Raspberry_Pi/ER-EPM042A1-1R/wiringpi ; make ; ./epd
     cd ../../..
-    cd ER-EPM042-1_Raspberry_Pi/ER-EPM042A1-1R/python ; time sudo `which python3` epd.py   # clear screen, (load images) then enter sleep mode
-    cd ER-EPM042-1_Raspberry_Pi/ER-EPM042A1-1R/python ; time sudo `which python3` display_image.py FILENAME  # load image and display it, any format supported by Python Pillow/PIL
+    cd ER-EPM042-1_Raspberry_Pi/ER-EPM042A1-1R/python ; time sudo `which python` epd.py clear   # clear screen, then enter sleep mode
+    cd ER-EPM042-1_Raspberry_Pi/ER-EPM042A1-1R/python ; time sudo `which python` epd.py   # clear screen, load sample images, then enter sleep mode
+    cd ER-EPM042-1_Raspberry_Pi/ER-EPM042A1-1R/python ; time sudo `which python` display_image.py FILENAME  # load image and display it, any format supported by Python Pillow/PIL
 
