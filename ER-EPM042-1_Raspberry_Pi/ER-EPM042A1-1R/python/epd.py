@@ -218,7 +218,7 @@ class Epd:
         print('DEBUG done write red')
         self.turn_on_display()
 
-    def epd_sleep(self):
+    def sleep(self):
         self.send_command(DEEP_SLEEP_MODE)
         self.send_data(0x01)
 
@@ -340,7 +340,7 @@ def main(argv=None):
             print('image now displaying, sleeping for 30 secs')
             delay_ms(30 * 1000)
     finally:
-        epd.epd_sleep()
+        epd.sleep()
         epd.close()
 
 
