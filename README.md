@@ -4,7 +4,8 @@ Sample code and docs for eink/epaper ER-EPM042-1R EastRising SSD1619 used on ER-
 
 Hardware available from https://www.buydisplay.com/red-4-2-inch-e-ink-display-module-400x300-for-arduino-raspberry-pi
 
-Currently only contains sample C code for Raspberry Pi using either bcm2835 or wiringpi over SPI (Raspberry Pi Library and Example for 4-wire SPI from https://www.buydisplay.com/red-4-2-inch-e-ink-display-module-400x300-for-arduino-raspberry-pi).
+Contains pure Python (3 and 2.7) library and sample/demo to load/display any image.
+Also contains original sample C code for Raspberry Pi using either bcm2835 or wiringpi over SPI (Raspberry Pi Library and Example for 4-wire SPI from https://www.buydisplay.com/red-4-2-inch-e-ink-display-module-400x300-for-arduino-raspberry-pi).
 
 Differences in this repo to original tutorial zip:
 
@@ -63,4 +64,7 @@ I.e.
     cd ER-EPM042-1_Raspberry_Pi/ER-EPM042A1-1R/bcm2835 ; make ; sudo ./epd
     cd ../../..
     cd ER-EPM042-1_Raspberry_Pi/ER-EPM042A1-1R/wiringpi ; make ; ./epd
+    cd ../../..
+    cd ER-EPM042-1_Raspberry_Pi/ER-EPM042A1-1R/python ; time sudo `which python3` epd.py   # clear screen, (load images) then enter sleep mode
+    cd ER-EPM042-1_Raspberry_Pi/ER-EPM042A1-1R/python ; time sudo `which python3` display_image.py FILENAME  # load image and display it, any format supported by Python Pillow/PIL
 
