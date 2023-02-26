@@ -277,14 +277,14 @@ class Epd:
         self.send_command(MASTER_ACTIVATION)  # Master Activation
         self.epd_wait_until_idle()
 
-    def epd_close(self):
+    def close(self):
         if self.is_open:
             # need to reset GPIO?
             self.spi.close()
             self.is_open = False
 
     def __del__(self):
-        self.epd_close()
+        self.close()
 
 
 
@@ -341,7 +341,7 @@ def main(argv=None):
             delay_ms(30 * 1000)
     finally:
         epd.epd_sleep()
-        epd.epd_close()
+        epd.close()
 
 
     return 0
