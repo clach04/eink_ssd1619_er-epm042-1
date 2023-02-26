@@ -299,8 +299,9 @@ def main(argv=None):
         global Image
         Image = None  # DEBUG disable image support, demo will be to clear and sleep
 
-    # TODO bit plane slice color into B and R
     if Image:
+        # this demo loads the seperate channel files that the C demo uses
+        # See display_image.py for how to load ANY image
         image_path = os.path.dirname(__file__)
         image_path = os.path.join(image_path, '..', 'wiringpi', 'pic')
 
