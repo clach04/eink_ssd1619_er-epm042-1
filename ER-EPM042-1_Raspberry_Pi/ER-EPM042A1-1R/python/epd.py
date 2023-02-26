@@ -170,7 +170,7 @@ class Epd:
         self.epd_turn_on_display()
 
     def epd_display(self, black_image_bytes, red_image_bytes):
-        # one byte per pixel (not one bit), unclear on grayscale support
+        # one bit per pixel (not one byte), unclear on grayscale support
         width = (EPD_WIDTH / 8 ) if (EPD_WIDTH % 8 == 0) else (EPD_WIDTH / 8 + 1)
         width = int(width)
         height = EPD_HEIGHT;
@@ -288,7 +288,7 @@ def main(argv=None):
     print('Python %s on %s' % (sys.version, sys.platform))
     #import pdb ; pdb.set_trace()
 
-    Image = None  # DEBUG disable image support, demo will be to clear and sleep
+    #Image = None  # DEBUG disable image support, demo will be to clear and sleep
     if Image:
         image_path = os.path.dirname(__file__)
         image_path = os.path.join(image_path, '..', 'wiringpi', 'pic')
@@ -298,14 +298,28 @@ def main(argv=None):
         red_image_path = os.path.join(image_path, '042-1rr1.bmp')
 
         black_image = Image.open(black_image_path)
-        black_image = black_image.convert('1')  # ensure we have a black and white (TODO gray scale support in hardware?) ## TODO dithering options
-        black_image = black_image.convert('L')  # now get one byte per pixel
+        black_image = black_image.convert('1')  # 1bpp - ensure we have a black and white (TODO gray scale support in hardware?) ## TODO dithering options
         assert black_image.size == (400, 300)
 
         red_image = Image.open(red_image_path)
-        red_image = red_image.convert('1')  # ensure we have a black and white (TODO gray scale support in hardware?) ## TODO dithering options
-        red_image = red_image.convert('L')  # now get one byte per pixel
+        red_image = red_image.convert('1')  # 1bpp - ensure we have a black and white (TODO gray scale support in hardware?) ## TODO dithering options
         assert red_image.size == (400, 300)
+
+        """
+        ### DEBUG - raw file
+        f = open('debug_black.bin', 'rb')
+        raw_bytes = f.read()  # expecting 120000
+        f.close()
+        assert len(raw_bytes) == 400 * 300
+        black_image = Image.frombytes('L', (400, 300), raw_bytes)
+        assert black_image.size == (400, 300)
+        f = open('debug_red.bin', 'rb')
+        raw_bytes = f.read()  # expecting 120000
+        f.close()
+        assert len(raw_bytes) == 400 * 300
+        red_image = Image.frombytes('L', (400, 300), raw_bytes)
+        assert red_image.size == (400, 300)
+        """
 
 
     epd = Epd()
@@ -313,7 +327,7 @@ def main(argv=None):
     epd.epd_clear()
 
     if Image:
-        epd.epd_display(black_image.tobytes(), red_image.tobytes())  # FIXME the order of the pixels is not correct...
+        epd.epd_display(black_image.tobytes(), red_image.tobytes())
         print('image now displaying, sleeping for 30 secs')
         delay_ms(30 * 1000)
 
