@@ -295,7 +295,10 @@ def main(argv=None):
     print('Python %s on %s' % (sys.version, sys.platform))
     #import pdb ; pdb.set_trace()
 
-    Image = None  # DEBUG disable image support, demo will be to clear and sleep
+    if 'clear' in argv:
+        global Image
+        Image = None  # DEBUG disable image support, demo will be to clear and sleep
+
     # TODO bit plane slice color into B and R
     if Image:
         image_path = os.path.dirname(__file__)
