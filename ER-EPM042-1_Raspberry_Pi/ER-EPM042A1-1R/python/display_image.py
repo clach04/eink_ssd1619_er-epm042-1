@@ -5,6 +5,7 @@ import os
 import sys
 
 try:
+    import PIL
     from PIL import Image, ImageOps
 except ImportError:
     try:
@@ -22,6 +23,8 @@ logging.basicConfig(format=log_format)
 log = logging.getLogger('asusdisplay')
 log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
 log.setLevel(logging.DEBUG)
+
+pil_version = tuple(map(int, PIL.__version__.split('.')))
 
 MAX_IMAGE_SIZE = (epd.EPD_WIDTH, epd.EPD_HEIGHT)
 
@@ -58,7 +61,11 @@ palette_three_colors = palette_three_colors + ([0x00] * (3 * 256 - len(palette_t
 image_palette = Image.new("P", (1, 1), 0)
 image_palette.putpalette(palette_three_colors)
 
-im_three_colors = color_image.quantize(palette=image_palette, dither=Image.FLOYDSTEINBERG)
+if pil_version <= (5, 4, 1):
+    im_three_colors = color_image.quantize(palette=image_palette)
+else:
+    #im_three_colors = color_image.quantize(palette=image_palette, dither=Image.NONE)
+    im_three_colors = color_image.quantize(palette=image_palette, dither=Image.FLOYDSTEINBERG)
 #im_three_colors.show()
 
 
