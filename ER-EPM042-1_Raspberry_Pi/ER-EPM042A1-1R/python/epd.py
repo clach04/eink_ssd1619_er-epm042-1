@@ -222,7 +222,7 @@ class Epd:
         self.send_command(DEEP_SLEEP_MODE)
         self.send_data(0x01)
 
-    def epd_reset(self):
+    def reset(self):
         self.digital_write(RST_PIN, 1)
         delay_ms(200)
         self.digital_write(RST_PIN, 0)
@@ -231,7 +231,7 @@ class Epd:
         delay_ms(200)
 
     def init(self):
-        self.epd_reset()
+        self.reset()
 
         self.send_command(0x74)
         self.send_data(0x54)
