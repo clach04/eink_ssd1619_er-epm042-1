@@ -58,7 +58,7 @@ palette_three_colors = palette_three_colors + ([0x00] * (3 * 256 - len(palette_t
 image_palette = Image.new("P", (1, 1), 0)
 image_palette.putpalette(palette_three_colors)
 
-im_three_colors = color_image.quantize(palette=image_palette)
+im_three_colors = color_image.quantize(palette=image_palette, dither=Image.FLOYDSTEINBERG)
 #im_three_colors.show()
 
 
