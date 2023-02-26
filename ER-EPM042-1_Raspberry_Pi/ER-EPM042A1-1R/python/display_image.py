@@ -142,7 +142,7 @@ try:
     if Image:
         display.display(black_image.tobytes(), red_image.tobytes())
         log.info('image now displaying, sleeping for 30 secs')
-        epd.delay_ms(30 * 1000)
+        #epd.delay_ms(30 * 1000)
 finally:
     display.sleep()
     display.close()
