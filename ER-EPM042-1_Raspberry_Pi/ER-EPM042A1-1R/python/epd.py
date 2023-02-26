@@ -81,7 +81,7 @@ class Epd:
         self.is_open = True
         # bus, device = 0, 0  # /dev/spidev<bus>.<device>
         self.connect(bus=bus, device=device)
-        self.epd_init()
+        self.init()
 
     def connect(self, bus=0, device=0):
         # bus, device = 0, 0  # /dev/spidev<bus>.<device>
@@ -230,7 +230,7 @@ class Epd:
         self.digital_write(RST_PIN, 1)
         delay_ms(200)
 
-    def epd_init(self):
+    def init(self):
         self.epd_reset()
 
         self.send_command(0x74)
