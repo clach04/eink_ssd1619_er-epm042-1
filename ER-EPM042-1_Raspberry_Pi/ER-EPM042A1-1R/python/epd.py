@@ -125,7 +125,7 @@ class Epd:
         while(self.digital_read(BUSY_PIN) == 1):      #  0/LOW: idle, 1/HIGH: busy
             delay_ms(100)
 
-    def epd_turn_on_display(self):
+    def turn_on_display(self):
         self.send_command(DISPLAY_UPDATE_CONTROL_2)
         self.send_data(0xC7)
         self.send_command(MASTER_ACTIVATION)
@@ -170,7 +170,7 @@ class Epd:
             self.send_command(WRITE_RAM_RED)
             for i in range(width):
                 self.send_data(0XFF)
-        self.epd_turn_on_display()
+        self.turn_on_display()
 
     def epd_display(self, black_image_bytes, red_image_bytes):
         # one bit per pixel (not one byte), unclear on grayscale support
@@ -216,7 +216,7 @@ class Epd:
                 #addr = i + (height - j - 1) * width  # flip
                 self.send_data(process_pixel(red_image_bytes[addr]))
         print('DEBUG done write red')
-        self.epd_turn_on_display()
+        self.turn_on_display()
 
     def epd_sleep(self):
         self.send_command(DEEP_SLEEP_MODE)
