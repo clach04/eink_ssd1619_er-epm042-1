@@ -172,7 +172,7 @@ class Epd:
                 self.send_data(0XFF)
         self.turn_on_display()
 
-    def epd_display(self, black_image_bytes, red_image_bytes):
+    def display(self, black_image_bytes, red_image_bytes):
         # one bit per pixel (not one byte), unclear on grayscale support
         width = (EPD_WIDTH / 8 ) if (EPD_WIDTH % 8 == 0) else (EPD_WIDTH / 8 + 1)
         width = int(width)
@@ -336,7 +336,7 @@ def main(argv=None):
         epd.epd_clear()
 
         if Image:
-            epd.epd_display(black_image.tobytes(), red_image.tobytes())
+            epd.display(black_image.tobytes(), red_image.tobytes())
             print('image now displaying, sleeping for 30 secs')
             delay_ms(30 * 1000)
     finally:
