@@ -288,9 +288,10 @@ class Epd:
 
     def close(self):
         if self.is_open:
-            # need to reset GPIO?
-            self.spi.close()
-            self.is_open = False
+            if rpi_gpio:
+                rpi_gpio.cleanup()
+        self.spi.close()
+        self.is_open = False
 
     def __del__(self):
         self.close()
